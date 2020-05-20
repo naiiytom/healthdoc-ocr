@@ -2,7 +2,8 @@ version: "3.8"
 
 services: 
   torch:
+    container_name: pytorch_stack
     build: 
-      context: "."
-      dockerfile: "/docker/torch/Dockerfile"
-    
+      context: "docker/torch"
+      dockerfile: "torch.Dockerfile"
+    restart: always
