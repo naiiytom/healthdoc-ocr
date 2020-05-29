@@ -8,3 +8,5 @@ RUN apt-get update && \
     apt-get install -y \
     gcc \
     build-essential
+
+RUN pip3 install -r requirements.txt

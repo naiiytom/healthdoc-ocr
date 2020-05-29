@@ -7,3 +7,11 @@ services:
       context: "docker/torch"
       dockerfile: "torch.Dockerfile"
     restart: always
+
+  jupyter:
+    container_name: jupyter_stack
+    build: 
+      context: "docker/jupyter"
+      dockerfile: "jupyter.Dockerfile"
+    restart: always
+    depends_on: torch
