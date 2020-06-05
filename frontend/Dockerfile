@@ -6,7 +6,7 @@ RUN apt update \
     && apt upgrade -y \
     && apt -qq install -y ca-certificates curl unzip --no-install-recommends \
     && curl -fsSL https://github.com/denoland/deno/releases/download/v${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip \
-        --output deno.zip \
+    --output deno.zip \
     && unzip deno.zip \
     && rm deno.zip \
     && chmod 777 deno \
@@ -19,7 +19,7 @@ RUN apt update \
 ADD . /app/
 WORKDIR /app
 
-RUN deno cache main.ts
+RUN deno cache app.ts
 EXPOSE 8080
 
-CMD [ "deno", "run", "--allow-net", "main.ts" ]
+CMD [ "deno", "run", "--allow-net", "app.ts" ]
