@@ -11,19 +11,27 @@ End-to-end Optical Character Recognition (OCR) project using multiple networks t
 docker composer
 
 ```bash
-docker-compose up -d
+$ docker-compose up -d
 ```
 
 ## Development
+
+### Front End
+
+```bash
+$ cd frontend
+$ docker build -t frontend .
+$ docker run -it --rm -p 8080:8080 frontend
+```
 
 ### Tesseract API
 
 Docker
 
 ```bash
-cd tesseract-api
-docker build -t tesseract-api .
-docker run -it --rm -p 5000:5000 tesseract-api
+$ cd tesseract-api
+$ docker build -t tesseract-api .
+$ docker run -it --rm -p 5000:5000 tesseract-api
 ```
 
 ## References
