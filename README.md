@@ -1,4 +1,4 @@
-<img style="float: right; width: 50px; height: 50px;" src="./docs/ocr.jpg" >
+<img align='right' width='50' height='50' src="./docs/ocr.jpg" >
 
 # Health Documents OCR
 
