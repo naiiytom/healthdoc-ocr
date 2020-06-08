@@ -1,21 +1,15 @@
 import { bold, yellow } from "https://deno.land/std@0.56.0/fmt/colors.ts";
-import { Router, Application, send } from "https://deno.land/x/oak/mod.ts";
+import { Router, Application, send, Context } from "https://deno.land/x/oak/mod.ts";
 
 const router = new Router();
 router
-  .get("/welcome", (context) => {
+  .get("/", (context) => {
     context.response.status = 200,
-    context.response.body = "Hello";
+    context.response.body = "Hello"
   });
-
+  
 const PORT = 8080;
 const app = new Application();
-app.use(async (context) => {
-  await context.send({
-    root: "/app/public",
-    index: "index.html",
-  });
-});
 app.use(router.routes());
 app.use(router.allowedMethods());
 

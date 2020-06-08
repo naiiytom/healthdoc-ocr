@@ -15,24 +15,24 @@ def main():
 
 @app.route(f'/api/ocr', methods=['POST'])
 def ocr():
-    # try:
-    url = request.json['img']
-    if ('jpg' in url or 'JPG' in url or 'png' in url):
-        output = process_image(url)
+    try:
+        url = request.json['img']
+        if ('jpg' in url or 'JPG' in url or 'png' in url):
+            output = process_image(url)
+            return jsonify({
+                'status': 200,
+                'output': output
+            })
+        else:
+            return jsonify({
+                'status': 400,
+                'error': 'File should be image'
+            })
+    except:
         return jsonify({
-            'status': 200,
-            'output': output
+            'status': 403,
+            'error': 'Forbidden'
         })
-    else:
-        return jsonify({
-            'status': 400,
-            'error': 'File should be image'
-        })
-    # except:
-    #     return jsonify({
-    #         'status': 403,
-    #         'error': 'Forbidden'
-    #     })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
