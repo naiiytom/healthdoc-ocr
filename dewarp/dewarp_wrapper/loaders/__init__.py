@@ -1,6 +1,6 @@
 import json
-from loaders.doc3dwc_loader import doc3dwcLoader
-from loaders.doc3dbmnoimgc_loader import doc3dbmnoimgcLoader
+from .doc3dwc_loader import doc3dwcLoader
+from .doc3dbmnoimgc_loader import doc3dbmnoimgcLoader
 
 
 def get_loader(name):
@@ -9,6 +9,6 @@ def get_loader(name):
     :param name:
     """
     return {
-        'doc3dwc':doc3dwcLoader,
-        'doc3dbmnic':doc3dbmnoimgcLoader,
+        'doc3dwc': doc3dwcLoader,
+        'doc3dbmnic': doc3dbmnoimgcLoader,
     }[name]
