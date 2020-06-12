@@ -7,6 +7,8 @@ import numpy as np
 import torch
 import random
 import torchvision
+from torchvision import utils
+import matplotlib.pyplot as plt
 
 
 def recursive_glob(rootdir='.', suffix=''):
@@ -199,7 +201,7 @@ def show_uloss_visdom(vis, uwpred, uworg, labels_win, out_win, labelopts, outopt
 
 def show_unwarp_tnsboard(global_step, writer, uwpred, uworg, grid_samples, gt_tag, pred_tag):
     idxs = torch.LongTensor(random.sample(
-        range(images.shape[0]), min(grid_samples, images.shape[0])))
+        range(uwpred.shape[0]), min(grid_samples, uwpred.shape[0])))
     grid_uworg = torchvision.utils.make_grid(
         uworg[idxs], normalize=True, scale_each=True)
     writer.add_image(gt_tag, grid_uworg, global_step)

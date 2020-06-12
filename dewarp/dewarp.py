@@ -17,7 +17,7 @@ from tqdm import tqdm
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def run(fname, wc_model='models/wc_model.pth', bm_model='models/bm_model.pth'):
+def run_infer(fname, wc_model='models/wc_model.pth', bm_model='models/bm_model.pth'):
     """
     # Testing inference
 
@@ -36,7 +36,6 @@ def run(fname, wc_model='models/wc_model.pth', bm_model='models/bm_model.pth'):
       * uw_pred
 
         - numpy image array of unwarp image ready to save to directory
-
     """
     wc_model_name = wc_model
     bm_model_name = bm_model
@@ -115,9 +114,25 @@ def unwarp(img, bm):
 
     return res
 
+from .dewarp_wrapper import pytorch_ssim
+def ssim(img1, img2, window_size=11, size_average=True):
+    return pytorch_ssim.ssim(img1, img2, window_size, size_average)
 
+def gaussian(window_size, sigma):
+    return pytorch_ssim.gaussian(window_size, sigma)
+
+def create_window(window_size, channel):
+    return pytorch_ssim.create_window(window_size, channel)
+
+class SSIM(pytorch_ssim.SSIM):
+    def __init__(self, window_size=11, size_average=True, channels=3):
+        super().__init__(window_size, size_average, channels)
+
+
+
+# For debugging purpose
 if __name__ == "__main__":
     # path = ''
-    # unwarped = run(path)
+    # unwarped = run_infer(path)
     # cv2.imwrite('./out/result.jpg', unwarp[:, :, ::-1] * 255)
     pass
