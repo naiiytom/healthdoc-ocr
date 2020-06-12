@@ -9,7 +9,7 @@ RUN export TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/
 
 ADD . /app
 WORKDIR /app
-RUN pip install -r requirements.txt
+RUN pip install -r ./requirements.txt
 
 EXPOSE 5000
 CMD [ "python", "app.py" ]
