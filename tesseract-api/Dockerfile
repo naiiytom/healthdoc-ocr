@@ -7,11 +7,9 @@ RUN apt update \
 
 RUN export TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/
 
-ADD requirements.txt /app/
+ADD . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
-
-ADD . /app
 
 EXPOSE 5000
 CMD [ "python", "app.py" ]
