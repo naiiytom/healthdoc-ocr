@@ -1,0 +1,19 @@
+name: Docker Image Deployment
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Tesseract API
+        run: docker build -t tesseract --file ./tesseract-api/Dockerfile
+      - name: Build Front-End Web
+        run: docker build -t frontend --file ./frontend/Dockerfile
