@@ -1,5 +1,4 @@
 from .dewarp_wrapper.utils import convert_state_dict
-from .dewarp_wrapper.loaders import get_loader
 from .dewarp_wrapper.models import get_model
 
 import sys
