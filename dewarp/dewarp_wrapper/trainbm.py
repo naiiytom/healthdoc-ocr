@@ -37,18 +37,22 @@ def train(args):
     # Setup Dataloader
     data_loader = get_loader('doc3dbmnic')
     data_path = args.data_path
+    print('Starting . . .')
     t_loader = data_loader(data_path, is_transform=True,
                            img_size=(args.img_rows, args.img_cols))
     v_loader = data_loader(data_path, is_transform=True,
                            split='val', img_size=(args.img_rows, args.img_cols))
 
     n_classes = t_loader.n_classes
+    print('Loading training data . . .')
     trainloader = data.DataLoader(
         t_loader, batch_size=args.batch_size, num_workers=8, shuffle=True)
+    print('Loading validation data . . .')
     valloader = data.DataLoader(
         v_loader, batch_size=args.batch_size, num_workers=8)
 
     # Setup Model
+    print('Loading model . . .')
     model = get_model(args.arch, n_classes, in_channels=3)
     model = torch.nn.DataParallel(
         model, device_ids=range(torch.cuda.device_count()))
@@ -133,13 +137,13 @@ def train(args):
             optimizer.step()
             global_step += 1
 
-            if (i+1) % 50 == 0:
-                avg_loss = avg_loss/50
+            if (i+1) % 10 == 0:
+                avg_loss = avg_loss/10
                 print("Epoch[%d/%d] Batch [%d/%d] Loss: %.4f" %
                       (epoch+1, args.n_epoch, i+1, len(trainloader), avg_loss))
                 avg_loss = 0.0
 
-            if args.tboard and (i+1) % 20 == 0:
+            if args.tboard and (i+1) % 10 == 0:
                 show_unwarp_tnsboard(
                     global_step, writer, uwpred, uworg, 8, 'Train GT unwarp', 'Train Pred Unwarp')
                 writer.add_scalar('BM: L1 Loss/train',

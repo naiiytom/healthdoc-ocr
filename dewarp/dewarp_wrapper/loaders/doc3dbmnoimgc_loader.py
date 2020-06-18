@@ -28,7 +28,7 @@ class doc3dbmnoimgcLoader(data.Dataset):
                  img_size=512):
         self.root = os.path.expanduser(root)
         # self.altroot='/home/sagnik/DewarpNet/swat3d/'
-        self.altroot = '/media/hilab/HiLabData/Sagnik/FoldedDocumentDataset/data/DewarpNet/swat3d/'
+        self.altroot = root
         self.split = split
         self.is_transform = is_transform
         self.n_classes = 2
@@ -47,13 +47,14 @@ class doc3dbmnoimgcLoader(data.Dataset):
 
     def __getitem__(self, index):
         im_name = self.files[self.split][index]  # 1/2Xec_Page_453X56X0001.png
+        im_name = im_name[:-4]
         im_path = pjoin(self.altroot, 'img',  im_name + '.png')
         img_foldr, fname = im_name.split('/')
         recon_foldr = 'chess48'
         wc_path = pjoin(self.altroot, 'wc', im_name + '.exr')
         bm_path = pjoin(self.altroot, 'bm', im_name + '.mat')
         alb_path = pjoin(self.root, 'recon', img_foldr,
-                         recon_foldr, fname[:-4]+recon_foldr+'0001.png')
+                         fname[:-4]+recon_foldr+'0001.png')
 
         wc = cv2.imread(wc_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
         bm = h5.loadmat(bm_path)['bm']
