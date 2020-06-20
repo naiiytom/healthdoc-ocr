@@ -137,7 +137,7 @@ def train(args):
             optimizer.step()
             global_step += 1
 
-            if (i+1) % 5 == 0:
+            if (i+1) % 10 == 0:
                 avg_loss = avg_loss/10
                 print("Epoch[%d/%d] Batch [%d/%d] Loss: %.4f" %
                       (epoch+1, args.n_epoch, i+1, len(trainloader), avg_loss))
@@ -146,6 +146,10 @@ def train(args):
             if args.tboard and (i+1) % 10 == 0:
                 show_unwarp_tnsboard(
                     global_step, writer, uwpred, uworg, 8, 'Train GT unwarp', 'Train Pred Unwarp')
+                writer.add_scalars('Train', {
+                    'BM_L1 Loss/train': avgl1loss/(i+1),
+                    'CB_Recon Loss/train': avgrloss/(i+1),
+                    'CB_SSIM Loss/train': avgssimloss/(i+1)}, global_step)
                 # writer.add_scalar('BM: L1 Loss/train',
                 #                   avgl1loss/(i+1), global_step)
                 # writer.add_scalar('CB: Recon Loss/train',
@@ -167,7 +171,7 @@ def train(args):
             writer.add_scalar('BM: L1 Loss/train', avgl1loss, epoch+1)
             writer.add_scalar('CB: Recon Loss/train', avgrloss, epoch+1)
             writer.add_scalar('CB: SSIM Loss/train', avgssimloss, epoch+1)
-            writer.add_scalar('Train MSE', train_mse, epoch+1)
+            writer.add_scalar('MSE: MSE/train', train_mse, epoch+1)
 
         model.eval()
         val_loss = 0.0
@@ -208,7 +212,22 @@ def train(args):
             writer.add_scalar('BM: L1 Loss/val', val_l1loss, epoch+1)
             writer.add_scalar('CB: Recon Loss/val', val_rloss, epoch+1)
             writer.add_scalar('CB: SSIM Loss/val', val_ssimloss, epoch+1)
-            writer.add_scalar('Val MSE', val_mse, epoch+1)
+            writer.add_scalar('MSE: MSE/val', val_mse, epoch+1)
+
+        if args.tboard:
+            # plot train against val
+            writer.add_scalars('BM: L1 Loss',
+                              {'train': avgl1loss,
+                               'val': val_l1loss}, epoch+1)
+            writer.add_scalars('CB: Recon Loss',
+                              {'train': avgrloss,
+                               'val': val_rloss}, epoch+1)
+            writer.add_scalars('CB: SSIM Loss',
+                              {'train': avgssimloss,
+                               'val': val_ssimloss}, epoch+1)
+            writer.add_scalars('MSE: Mean square error',
+                              {'train': train_mse,
+                               'val': val_mse}, epoch+1)
 
         # reduce learning rate
         sched.step(val_mse)

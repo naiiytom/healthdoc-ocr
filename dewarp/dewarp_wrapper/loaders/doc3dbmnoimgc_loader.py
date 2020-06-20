@@ -49,19 +49,26 @@ class doc3dbmnoimgcLoader(data.Dataset):
         im_name = self.files[self.split][index]  # 1/2Xec_Page_453X56X0001.png
         im_name = im_name[:-4]
         im_path = pjoin(self.altroot, 'img',  im_name + '.png')
-        img_foldr, fname = im_name.split('/')
+        # img_foldr, fname = im_name.split('/')
         recon_foldr = 'chess48'
         wc_path = pjoin(self.altroot, 'wc', im_name + '.exr')
         bm_path = pjoin(self.altroot, 'bm', im_name + '.mat')
-        alb_path = pjoin(self.root, 'recon', img_foldr,
-                         fname[:-4]+recon_foldr+'0001.png')
+        alb_path = pjoin(self.altroot, 'recon', im_name[:-4] + recon_foldr + '0001.png')
 
         wc = cv2.imread(wc_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
-        bm = h5.loadmat(bm_path)['bm']
+        bm = self.loadmat(bm_path)['bm']
         alb = m.imread(alb_path, mode='RGB')
         if self.is_transform:
             im, lbl = self.transform(wc, bm, alb)
         return im, lbl
+
+    def loadmat(self, path):
+        try:
+            return h5.loadmat(path)
+        except NotImplementedError:
+            print(path)
+            import mat73
+            return mat73.loadmat(path)
 
     def tight_crop(self, wc, alb):
         msk = ((wc[:, :, 0] != 0) & (wc[:, :, 1] != 0)
