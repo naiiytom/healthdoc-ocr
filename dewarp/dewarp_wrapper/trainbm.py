@@ -275,4 +275,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     train(args)
 
-# CUDA_VISIBLE_DEVICES=1 python trainS3dbmnoimg.py --arch dnetccnl --dataset swat3d --img_rows 128 --img_cols 128 --img_norm --n_epoch 250 --batch_size 50 --l_rate 0.0001 --tboard --data_path /media/hilab/sagniksSSD/Sagnik/DewarpNet
+# CUDA_VISIBLE_DEVICES=1 python trainS3dbmnoimg.py --arch dnetccnl --img_rows 128 --img_cols 128 --img_norm --n_epoch 250 --batch_size 80 --l_rate 0.0001 --tboard --data_path /media/hilab/sagniksSSD/Sagnik/DewarpNet
+
+# python .\trainbm.py --arch dnetccnl --img_rows 128 --img_cols 128 --n_epoch 200 --batch_size 80 --l_rate 0.000025 --tboard --data_path D:\doc3d-dataset --resume C:\Users\yuttapichai.lam\dev-environment\pretrained-models\dnetccnl_108_0.07121366064529866_0.1044014591530301_dnetccnl_htan_swat3dmini1kbm_ssim_loss_noaug_scratch_best_model.pkl

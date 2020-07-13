@@ -67,8 +67,6 @@ class doc3dbmnoimgcLoader(data.Dataset):
             return h5.loadmat(path)
         except NotImplementedError:
             print(path)
-            import mat73
-            return mat73.loadmat(path)
 
     def tight_crop(self, wc, alb):
         msk = ((wc[:, :, 0] != 0) & (wc[:, :, 1] != 0)

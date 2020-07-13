@@ -131,42 +131,6 @@ class DenseTransitionBlockDecoder(nn.Module):
     def forward(self, inputs):
         return self.main(inputs)
 
-
-# Attention Block
-# Ref: https://www.kaggle.com/c/tgs-salt-identification-challenge/discussion/64367
-
-class AttentionBlock(nn.Module):
-    def __init__(self, F_g, F_l, F_int):
-        super(AttentionBlock, self).__init__()
-        self.W_g = nn.Sequential(
-            nn.Conv2d(F_g, F_int, kernel_size=1,
-                      stride=1, padding=0, bias=True),
-            nn.BatchNorm2d(F_int)
-        )
-
-        self.W_x = nn.Sequential(
-            nn.Conv2d(F_l, F_int, kernel_size=1,
-                      stride=1, padding=0, bias=True),
-            nn.BatchNorm2d(F_int)
-        )
-
-        self.psi = nn.Sequential(
-            nn.Conv2d(F_int, 1, kernel_size=1, stride=1, padding=0, bias=True),
-            nn.BatchNorm2d(1),
-            nn.Sigmoid()
-        )
-
-        self.relu = nn.ReLU(inplace=True)
-
-    def forward(self, x):
-        g1 = self.W_g(x)
-        x1 = self.W_x(x)
-        psi = self.relu(g1 + x1)
-        psi = self.psi(psi)
-
-        return x * psi
-
-
 # Dense encoders and decoders for image of size 128 128
 
 
@@ -226,27 +190,22 @@ class waspDenseDecoder128(nn.Module):
 
             # state size. (ngf*8) x 4 x 4
             DenseBlockDecoder(ngf*8, 16),
-            AttentionBlock(ngf*8, ngf*8, ngf*8),
             DenseTransitionBlockDecoder(ngf*8, ngf*8),
 
             # state size. (ngf*4) x 8 x 8
             DenseBlockDecoder(ngf*8, 16),
-            AttentionBlock(ngf*8, ngf*8, ngf*8),
             DenseTransitionBlockDecoder(ngf*8, ngf*4),
 
             # state size. (ngf*2) x 16 x 16
             DenseBlockDecoder(ngf*4, 12),
-            AttentionBlock(ngf*4, ngf*4, ngf*4),
             DenseTransitionBlockDecoder(ngf*4, ngf*2),
 
             # state size. (ngf) x 32 x 32
             DenseBlockDecoder(ngf*2, 6),
-            AttentionBlock(ngf*2, ngf*2, ngf*2),
             DenseTransitionBlockDecoder(ngf*2, ngf),
 
             # state size. (ngf) x 64 x 64
             DenseBlockDecoder(ngf, 6),
-            AttentionBlock(ngf, ngf, ngf),
             DenseTransitionBlockDecoder(ngf, ngf),
 
             # state size (ngf) x 128 x 128
