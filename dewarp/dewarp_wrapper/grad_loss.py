@@ -1,11 +1,12 @@
 import cv2
+import sys
 from math import exp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
-np.set_printoptions(threshold=np.nan)
+np.set_printoptions(threshold=sys.maxsize)
 # import matplotlib.pyplot as plt
 
 
