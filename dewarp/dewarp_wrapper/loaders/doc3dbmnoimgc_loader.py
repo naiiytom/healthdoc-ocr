@@ -66,7 +66,7 @@ class doc3dbmnoimgcLoader(data.Dataset):
         try:
             return h5.loadmat(path)
         except NotImplementedError:
-            print(path)
+            print(f'couldn\'t read path: {path}')
 
     def tight_crop(self, wc, alb):
         msk = ((wc[:, :, 0] != 0) & (wc[:, :, 1] != 0)
