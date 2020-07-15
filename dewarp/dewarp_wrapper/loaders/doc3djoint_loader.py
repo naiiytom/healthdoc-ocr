@@ -1,5 +1,4 @@
 import torch
-import os
 import numpy as np
 import cv2
 import hdf5storage as h5
@@ -8,7 +7,6 @@ import collections
 from scipy import misc as m
 from os.path import join as pjoin
 from torch.utils import data
-from tqdm import tqdm
 
 
 class doc3djointLoader(data.Dataset):
