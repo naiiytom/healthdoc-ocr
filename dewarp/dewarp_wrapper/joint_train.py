@@ -236,6 +236,6 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
 
 
 if __name__ == "__main__":
-    train(n_epoch=120, batch_size=64, resume=True,
+    train(n_epoch=120, batch_size=32, resume=True,
           wc_path='C:/Users/yuttapichai.lam/dev-environment/pretrained-models/unetnc_doc3d.pkl',
           bm_path='C:/Users/yuttapichai.lam/dev-environment/pretrained-models/dnetccnl_doc3d.pkl')

@@ -53,7 +53,8 @@ class doc3dbmnoimgcLoader(data.Dataset):
         recon_foldr = 'chess48'
         wc_path = pjoin(self.altroot, 'wc', im_name + '.exr')
         bm_path = pjoin(self.altroot, 'bm', im_name + '.mat')
-        alb_path = pjoin(self.altroot, 'recon', im_name[:-4] + recon_foldr + '0001.png')
+        alb_path = pjoin(self.altroot, 'recon',
+                         im_name[:-4] + recon_foldr + '0001.png')
 
         wc = cv2.imread(wc_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
         bm = self.loadmat(bm_path)['bm']

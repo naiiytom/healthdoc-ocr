@@ -59,17 +59,17 @@ class doc3djointLoader(data.Dataset):
 
     def transform(self, img, wc, bm, recon):
         img = m.imresize(img, (self.img_size[0], self.img_size[1]))
-        if img.shape[2] == 4:
+        if img.shape[-1] == 4:
             img = img[:, :, :3]
         img = img[:, :, ::-1]  # RGB => BGR
-        img = img.astype(np.float64)
+        img = img.astype(float) / 255.0
         img = img.transpose(2, 0, 1)
 
         recon = m.imresize(recon, (self.bm_size[0], self.bm_size[1]))
-        if recon.shape[2] == 4:
+        if recon.shape[-1] == 4:
             recon = recon[:, :, :3]
         recon = recon[:, :, ::-1]  # RGB => BGR
-        recon = recon.astype(np.float64)
+        recon = recon.astype(float) / 255.0
         recon = recon.transpose(2, 0, 1)  # NHWC => NCHW
 
         msk = ((wc[:, :, 0] != 0) & (wc[:, :, 1] != 0)).astype(np.uint8) * 255
@@ -80,6 +80,7 @@ class doc3djointLoader(data.Dataset):
         wc[:, :, 2] = (wc[:, :, 2] - xmn) / (xmx - xmn)
         wc = cv2.bitwise_and(wc, wc, mask=msk)
         wc = m.imresize(wc, (self.img_size[0], self.img_size[1]))
+        wc = wc.astype(float) / 255.0
         wc = wc.transpose(2, 0, 1)
 
         bm = bm.astype(float)
