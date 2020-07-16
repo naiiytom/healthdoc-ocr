@@ -17,7 +17,7 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
     bm_model_name = 'dnetccnl'
 
     # Setup dataloader
-    data_path = 'C:/Users/yuttapichai.lam/dev-environment/dataset'
+    data_path = 'D:/doc3d-dataset'
     data_loader = get_loader('doc3djoint')
     t_loader = data_loader(data_path, is_transform=True,
                            img_size=(256, 256), bm_size=(128, 128))
@@ -72,7 +72,7 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
     print(f'Start from epoch {epoch_start} of {n_epoch}')
     print('Starting')
     for epoch in range(epoch_start, n_epoch):
-        print(f'Epoch: {epoch+1}')
+        print(f'Epoch: {epoch}')
         # Loss initialization
         avg_loss = 0.0
         avg_wcloss = 0.0
@@ -140,12 +140,22 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
             loss = (0.5 * wc_loss) + (0.5 * bm_loss)
             avg_loss += float(loss)
 
+            if (i+1) % 10 == 0:
+                print(
+                    f'Epoch[{epoch}/{n_epoch}] Batch[{i+1}/{len(trainloader)}] Loss: {avg_loss/(i+1):.6f}')
+
             loss.backward()
             optimizer.step()
-        len_trainset = len(trainloader)
-        train_losses = [avgwcl1loss/len_trainset, train_wcmse/len_trainset, avg_gloss/len_trainset,
-                        avgbml1loss/len_trainset, train_bmmse/len_trainset, avgrloss/len_trainset, avgssimloss/len_trainset]
 
+        len_trainset = len(trainloader)
+        train_wcmse = train_wcmse/len_trainset
+        train_bmmse = train_bmmse/len_trainset
+        train_losses = [avgwcl1loss/len_trainset, train_wcmse, avg_gloss/len_trainset,
+                        avgbml1loss/len_trainset, train_bmmse, avgrloss/len_trainset, avgssimloss/len_trainset]
+        print(
+            f'WC L1 loss: {train_losses[0]} WC MSE: {train_losses[1]} WC GLoss: {train_losses[2]}')
+        print(
+            f'BM L1 Loss: {train_losses[3]} BM MSE: {train_losses[4]} BM RLoss: {train_losses[5]} BM SSIM Loss: {train_losses[6]}')
         wc_model.eval()
         bm_model.eval()
 
@@ -199,29 +209,33 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
                 bm_val_ssim += float(ssim.cpu())
 
         len_valset = len(valloader)
-        val_losses = [wc_val_l1/len_valset, wc_val_mse/len_valset,
-                      wc_val_gloss/len_valset, bm_val_l1/len_valset, bm_val_mse/len_valset, bm_val_rloss/len_valset, bm_val_ssim/len_valset]
-
         wc_val_mse = wc_val_mse/len_valset
         bm_val_mse = bm_val_mse/len_valset
-
+        val_losses = [wc_val_l1/len_valset, wc_val_mse, wc_val_gloss/len_valset,
+                      bm_val_l1/len_valset, bm_val_mse, bm_val_rloss/len_valset, bm_val_ssim/len_valset]
+        print(
+            f'WC L1 loss: {val_losses[0]} WC MSE: {val_losses[1]} WC GLoss: {val_losses[2]}')
+        print(
+            f'BM L1 Loss: {val_losses[3]} BM MSE: {val_losses[4]} BM RLoss: {val_losses[5]} BM SSIM Loss: {val_losses[6]}')
         # Reduce learning rate
         schedule.step(wc_val_mse)
 
         if wc_val_mse < best_valwc_mse:
             best_valwc_mse = wc_val_mse
-            state = {'epoch': epoch + 1,
+            state = {'epoch': epoch,
                      'model_state': wc_model.state_dict()}
-            torch.save(state, f'./{epoch+1}unetnc_wc_best_model.pkl')
+            torch.save(
+                state, f'./checkpoints-wc/unetnc_{epoch}_wc_{wc_val_mse}_{train_wcmse}_best_model.pkl')
 
         if bm_val_mse < best_valbm_mse:
             best_valbm_mse = bm_val_mse
-            state = {'epoch': epoch + 1,
+            state = {'epoch': epoch,
                      'model_state': bm_model.state_dict()}
-            torch.save(state, f'./{epoch+1}_dnetccnl_bm_best_model.pkl')
+            torch.save(
+                state, f'./checkpoints-bm/dnetccnl_{epoch}_bm_{bm_val_mse}_{train_bmmse}_best_model.pkl')
 
 
 if __name__ == "__main__":
-    train(n_epoch=120, batch_size=5, resume=True,
+    train(n_epoch=120, batch_size=64, resume=True,
           wc_path='C:/Users/yuttapichai.lam/dev-environment/pretrained-models/unetnc_doc3d.pkl',
           bm_path='C:/Users/yuttapichai.lam/dev-environment/pretrained-models/dnetccnl_doc3d.pkl')
