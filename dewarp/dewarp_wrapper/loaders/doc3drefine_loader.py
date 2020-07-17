@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import hdf5storage as h5
 import collections
+import matplotlib.pyplot as plt
 
 from scipy import misc as m
 from os.path import join as pjoin
@@ -51,13 +52,15 @@ class doc3dNELoader(data.Dataset):
         img = img.astype(float) / 255.0
         img = img.transpose(2, 0, 1)
 
-        # msk = ((norm[:, :, 0] != 0) & (norm[:, :, 1] != 0)).astype(np.uint8) * 255
-        # xmx, xmn, ymx, ymn, zmx, zmn = 1.2539363, - \
-        #     1.2442188, 1.2396319, -1.2289206, 0.6436657, -0.67187124
-        # norm[:, :, 0] = (norm[:, :, 0] - zmn) / (zmx - zmn)
-        # norm[:, :, 1] = (norm[:, :, 1] - ymn) / (ymx - ymn)
-        # norm[:, :, 2] = (norm[:, :, 2] - xmn) / (xmx - xmn)
-        # norm = cv2.bitwise_and(norm, norm, mask=msk)
+        msk = ((norm[:, :, 0] != 0) & (norm[:, :, 1] != 0)).astype(np.uint8) * 255
+        zmx, zmn = np.max(norm[:, :, 0]), np.min(norm[:, :, 0])
+        ymx, ymn = np.max(norm[:, :, 1]), np.min(norm[:, :, 1])
+        xmx, xmn = np.max(norm[:, :, 2]), np.min(norm[:, :, 2])
+
+        norm[:, :, 0] = (norm[:, :, 0] - zmn) / (zmx - zmn)
+        norm[:, :, 1] = (norm[:, :, 1] - ymn) / (ymx - ymn)
+        norm[:, :, 2] = (norm[:, :, 2] - xmn) / (xmx - xmn)
+        norm = cv2.bitwise_and(norm, norm, mask=msk)
         norm = m.imresize(norm, (self.img_size[0], self.img_size[1]))
         norm = norm.astype(float)
         norm = norm.transpose(2, 0, 1)
@@ -72,3 +75,54 @@ class doc3dNELoader(data.Dataset):
 
 class doc3dSELoader(data.Dataset):
     pass
+
+
+
+
+if __name__ == "__main__":
+    ROOT = 'C:/Users/yuttapichai.lam/dev-environment/dataset/'
+    img_path = ROOT + 'img/1_1_1-pr_Page_141-PZU0001.png'
+    img = m.imread(img_path, mode='RGB')
+    img = np.array(img, dtype=np.uint8)
+    norm_path = ROOT + 'norm/1_1_1-pr_Page_141-PZU0001.exr'
+    norm = cv2.imread(norm_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH) * 255
+    norm = np.array(norm, dtype=np.float)
+    
+    # img = img[:, :, ::-1]
+    img = (img/255.0).astype(np.float)
+    # img = img.transpose(2, 0, 1)
+
+    # msk = ((norm[:, :, 0] != 0) & (norm[:, :, 1] != 0)).astype(np.uint8) * 255
+    # zmx, zmn = np.max(norm[:, :, 0]), np.min(norm[:, :, 0])
+    # ymx, ymn = np.max(norm[:, :, 1]), np.min(norm[:, :, 1])
+    # xmx, xmn = np.max(norm[:, :, 2]), np.min(norm[:, :, 2])
+
+    # norm[:, :, 0] = (norm[:, :, 0] - zmn) / (zmx - zmn)
+    # norm[:, :, 1] = (norm[:, :, 1] - ymn) / (ymx - ymn)
+    # norm[:, :, 2] = (norm[:, :, 2] - xmn) / (xmx - xmn)
+    # norm = cv2.bitwise_and(norm, norm, mask=msk)
+    norm = norm.astype(np.float) / 255.0
+    # norm = norm.transpose(2, 0, 1)
+
+    _, ax = plt.subplots(2, 1)
+    ax[0].imshow(img)
+    ax[1].imshow(norm)
+    plt.show()
+    img = img.transpose(2, 0, 1)
+    norm = norm.transpose(2, 0, 1)
+    print(norm)
+    # print(np.max(img[:, :, 0]))
+    # print(np.max(img[:, :, 1]))
+    # print(np.max(img[:, :, 2]))
+
+    # print(np.max(norm[:, :, 0]))
+    # print(np.max(norm[:, :, 1]))
+    # print(np.max(norm[:, :, 2]))
+    # print(np.min(norm[:, :, 0]))
+    # print(np.min(norm[:, :, 1]))
+    # print(np.min(norm[:, :, 2]))
+
+    # print(np.max(img))
+    # print(np.min(img))
+    # print(np.max(norm))
+    # print(np.min(norm))

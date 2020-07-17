@@ -104,7 +104,7 @@ def unwarp(img, bm):
     bm = torch.from_numpy(bm).double()
 
     img = img.astype(float) / 255.0
-    img = img.transspose((2, 0, 1))
+    img = img.transpose((2, 0, 1))
     img = np.expand_dims(img, 0)
     img = torch.from_numpy(img).double()
 

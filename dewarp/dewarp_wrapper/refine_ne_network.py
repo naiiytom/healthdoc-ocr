@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils import data
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from models import get_model
 from loaders import get_loader
@@ -15,7 +16,7 @@ def train(n_epoch=50, batch_size=32, resume=False):
     model_name = 'unetnc'
 
     # Setup dataloader
-    data_path = 'D:/doc3d-dataset'
+    data_path = 'C:/Users/yuttapichai.lam/dev-environment/dataset'
     data_loader = get_loader('ne_refine')
     t_loader = data_loader(data_path, is_transform=True,
                            img_size=(256, 256))
@@ -28,20 +29,24 @@ def train(n_epoch=50, batch_size=32, resume=False):
 
     # Load models
     print('Loading')
-    model = get_model(model_name, n_classes=3, in_channels=6)
+    model = get_model(model_name, n_classes=3, in_channels=3)
     model = torch.nn.DataParallel(
         model, device_ids=range(torch.cuda.device_count()))
     model.cuda()
 
+    # print(model)
+    # print(len(list(model.parameters)))
+
     # Setup optimizer and learning rate reduction
     print('Setting optimizer')
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=1e-4, weight_decay=5e-4, amsgrad=True)
+        model.parameters(), lr=0.0001, weight_decay=5e-4, amsgrad=True)
     schedule = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='min', factor=0.5, patience=4, verbose=True)
 
     # Set Activation function
     htan = nn.Hardtanh(0, 1.0)
+    sigmoid = nn.Sigmoid()
 
     # Setup losses
     MSE = nn.MSELoss()
@@ -79,9 +84,17 @@ def train(n_epoch=50, batch_size=32, resume=False):
 
             # Train NE network
             ne_out = model(images)
-            ne_out = F.interpolate(ne_out, size=(
-                256, 256), mode='bilinear', align_corners=True)
+            # ne_out = F.interpolate(ne_out, size=(
+            #     256, 256), mode='bilinear', align_corners=True)
+            # ne_pred = sigmoid(ne_out)
             ne_pred = htan(ne_out)
+
+            im = ne_pred.cpu().detach().numpy()
+            print(im.shape)
+            im = im.transpose(0, 2, 3, 1)
+            print(im[0])
+            plt.imshow(im[0])
+            plt.show()
 
             l1_loss = loss_fn(ne_pred, norm_labels)
             mse = MSE(ne_pred, norm_labels)
@@ -93,8 +106,8 @@ def train(n_epoch=50, batch_size=32, resume=False):
 
             if (i+1) % 10 == 0:
                 print(
-                    f'Epoch[{epoch}/{n_epoch}] Batch[{i+1}/{len(trainloader)}] Loss: {avg_loss/(i+1):.6f}')
-
+                    f'Epoch[{epoch}/{n_epoch}] Batch[{i+1}/{len(trainloader)}] Loss: {avg_loss/(i+1):.6f} MSE: {train_mse/(i+1)}')
+            # mse.backward()
             l1_loss.backward()
             optimizer.step()
 
@@ -116,8 +129,9 @@ def train(n_epoch=50, batch_size=32, resume=False):
 
                 # Val NE Network
                 ne_out_val = model(images_val)
-                ne_out_val = F.interpolate(ne_out_val, size=(
-                    256, 256), mode='bilinear', align_corners=True)
+                # ne_out_val = F.interpolate(ne_out_val, size=(
+                #     256, 256), mode='bilinear', align_corners=True)
+                # ne_pred_val = sigmoid(ne_out_val)
                 ne_pred_val = htan(ne_out_val)
 
                 ne_l1 = loss_fn(ne_pred_val, norm_labels_val)
@@ -130,7 +144,7 @@ def train(n_epoch=50, batch_size=32, resume=False):
         len_valset = len(valloader)
         wc_val_mse = val_mse/len_valset
         val_losses = [val_l1/len_valset, wc_val_mse]
-        print(f'WC L1 loss: {val_losses[0]} WC MSE: {val_losses[1]}')
+        print(f'NE L1 loss: {val_losses[0]} NE MSE: {val_losses[1]}')
 
         # Reduce learning rate
         schedule.step(val_mse)
@@ -148,4 +162,4 @@ def test():
 
 
 if __name__ == "__main__":
-    train(n_epoch=10, batch_size=2)
+    train(n_epoch=10, batch_size=10)
