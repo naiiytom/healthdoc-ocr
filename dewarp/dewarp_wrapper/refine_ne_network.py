@@ -58,7 +58,7 @@ def train(n_epoch=50, batch_size=32, resume=False, tboard=False, ne_path=''):
 
     epoch_start = 0
     global_step = 0
-    
+
     if tboard:
         writer = SummaryWriter(comment='Refinement_NE')
     if resume:
@@ -162,7 +162,8 @@ def train(n_epoch=50, batch_size=32, resume=False, tboard=False, ne_path=''):
 
         if tboard:
             writer.add_scalars('L1', {'train': loss, 'val': val_l1}, epoch)
-            writer.add_scalars('MSE', {'train': train_mse, 'val': val_mse}, epoch)
+            writer.add_scalars(
+                'MSE', {'train': train_mse, 'val': val_mse}, epoch)
 
         # Reduce learning rate
         schedule.step(val_l1)
@@ -174,6 +175,10 @@ def train(n_epoch=50, batch_size=32, resume=False, tboard=False, ne_path=''):
                      'optimizer_state': optimizer.state_dict()}
             torch.save(
                 state, f'./checkpoints-ne/unetnc_{epoch}_ne_{val_l1}_{loss}_best_model.pkl')
+
+        if val_l1 < 0.01:
+            torch.save(model.state_dict(
+            ), f'./checkpoints-ne/unetnc_ne_no_optimizer_{epoch}_{val_l1}_{loss}_afk.pkl')
 
         if (epoch + 1) % 10 == 0:
             state = {'epoch': epoch + 1,
@@ -220,9 +225,9 @@ def test(img_path, model_path, show=False):
 
 
 if __name__ == "__main__":
-    train(n_epoch=20, batch_size=16, tboard=True,
-      resume=True,
-      ne_path='./checkpoints-ne/unetnc_2_ne_0.04934345919136717_0.050279866009191564_best_model.pkl')
+    train(n_epoch=50, batch_size=16,
+          tboard=True)#, resume=True,
+        #   ne_path='./checkpoints-ne/unetnc_18_ne_0.0334525251393221_0.033079835621648845_best_model.pkl')
 
     # 'unetnc_29_ne_auto_saving_every_ten_epochs_with_15915.781536233837_15943.209089416696_loss'
     # 'unetnc_12_ne_58.70977287531647_58.70468106015723_best_model'

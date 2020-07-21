@@ -195,7 +195,7 @@ def test(img_path, model_path, show=False):
     img = np.expand_dims(img, 0)
     img = torch.from_numpy(img).float()
 
-    htan = nn.Hardtanh(-1.0, 1.0)
+    htan = nn.Hardtanh(0.0, 1.0)
     model = get_model('unetnc', n_classes=3, in_channels=3)
     state = convert_state_dict(torch.load(model_path)['model_state'])
 
@@ -213,14 +213,17 @@ def test(img_path, model_path, show=False):
     if show:
         pred = pred.transpose((1, 2, 0))
         pred = cv2.resize(pred, (h, w), interpolation=cv2.INTER_NEAREST)
+        # norm = cv2.cvtColor(pred, cv2.COLOR_RGB2BGR)
+        shade = cv2.cvtColor(pred, cv2.COLOR_BGR2GRAY)
         print(pred)
-        _, axis = plt.subplots(1, 2)
+        _, axis = plt.subplots(1, 3)
         axis[0].imshow(imgorg)
         axis[1].imshow(pred)
+        axis[2].imshow(shade, cmap='gray')
         plt.show()
 
 
 if __name__ == "__main__":
     test('C:/Users/yuttapichai.lam/dev-environment/DewarpNet-master/eval/inp/3_4.jpg',
-         './checkpoints-ne/unetnc_2_ne_0.04934345919136717_0.050279866009191564_best_model.pkl',
+         './checkpoints-ne/unetnc_10_ne_0.03485606382761536_0.034917718366658475_best_model.pkl',
          show=True)

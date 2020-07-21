@@ -39,6 +39,7 @@ class doc3dNELoader(data.Dataset):
         img = np.array(img, dtype=np.uint8)
 
         norm = cv2.imread(norm_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+        norm = cv2.cvtColor(norm, cv2.COLOR_RGB2BGR)
         norm = np.array(norm, dtype=np.float)
 
         if self.is_transform:
@@ -54,15 +55,15 @@ class doc3dNELoader(data.Dataset):
         img = img.astype(float) / 255.0
         img = img.transpose((2, 0, 1))
 
-        msk = ((norm[:, :, 0] != 0) & (norm[:, :, 1] != 0)).astype(np.uint8) * 255
-        zmx, zmn = np.max(norm[:, :, 0]), np.min(norm[:, :, 0])
-        ymx, ymn = np.max(norm[:, :, 1]), np.min(norm[:, :, 1])
-        xmx, xmn = np.max(norm[:, :, 2]), np.min(norm[:, :, 2])
+        # msk = ((norm[:, :, 0] != 0) & (norm[:, :, 1] != 0)).astype(np.uint8) * 255
+        # zmx, zmn = np.max(norm[:, :, 0]), np.min(norm[:, :, 0])
+        # ymx, ymn = np.max(norm[:, :, 1]), np.min(norm[:, :, 1])
+        # xmx, xmn = np.max(norm[:, :, 2]), np.min(norm[:, :, 2])
 
-        norm[:, :, 0] = (norm[:, :, 0] - zmn) / (zmx - zmn)
-        norm[:, :, 1] = (norm[:, :, 1] - ymn) / (ymx - ymn)
-        norm[:, :, 2] = (norm[:, :, 2] - xmn) / (xmx - xmn)
-        norm = cv2.bitwise_and(norm, norm, mask=msk)
+        # norm[:, :, 0] = (norm[:, :, 0] - zmn) / (zmx - zmn)
+        # norm[:, :, 1] = (norm[:, :, 1] - ymn) / (ymx - ymn)
+        # norm[:, :, 2] = (norm[:, :, 2] - xmn) / (xmx - xmn)
+        # norm = cv2.bitwise_and(norm, norm, mask=msk)
         norm = cv2.resize(norm, (self.img_size[0], self.img_size[1]), interpolation=cv2.INTER_NEAREST)
         norm = norm.astype(float)
         norm = norm.transpose((2, 0, 1))
@@ -86,6 +87,7 @@ if __name__ == "__main__":
     # img = np.array(img, dtype=np.uint8)
     norm_path = ROOT + 'norm/' + FNAME + '.exr'
     norm = cv2.imread(norm_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+    norm = cv2.cvtColor(norm, cv2.COLOR_RGB2BGR)
     # norm = np.array(norm, dtype=np.float)
     bm_path = ROOT + 'bm/' + FNAME + '.mat'
     bm = h5.loadmat(bm_path)['bm']
