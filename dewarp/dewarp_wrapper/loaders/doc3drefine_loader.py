@@ -39,7 +39,6 @@ class doc3dNELoader(data.Dataset):
         img = np.array(img, dtype=np.uint8)
 
         norm = cv2.imread(norm_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
-        norm = cv2.cvtColor(norm, cv2.COLOR_RGB2BGR)
         norm = np.array(norm, dtype=np.float)
 
         if self.is_transform:

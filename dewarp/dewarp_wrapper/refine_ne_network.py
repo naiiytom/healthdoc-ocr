@@ -226,8 +226,8 @@ def test(img_path, model_path, show=False):
 
 if __name__ == "__main__":
     train(n_epoch=50, batch_size=16,
-          tboard=True)#, resume=True,
-        #   ne_path='./checkpoints-ne/unetnc_18_ne_0.0334525251393221_0.033079835621648845_best_model.pkl')
+          tboard=True, resume=True,
+          ne_path='./checkpoints-ne/unetnc_18_ne_0.0334525251393221_0.033079835621648845_best_model.pkl')
 
     # 'unetnc_29_ne_auto_saving_every_ten_epochs_with_15915.781536233837_15943.209089416696_loss'
     # 'unetnc_12_ne_58.70977287531647_58.70468106015723_best_model'
