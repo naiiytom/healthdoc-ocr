@@ -218,7 +218,7 @@ def test(img_path, model_path, show=False):
         print(pred)
         _, axis = plt.subplots(1, 3)
         axis[0].imshow(imgorg)
-        axis[1].imshow(pred)
+        axis[1].imshow(norm)
         axis[2].imshow(shade, cmap='gray')
         plt.show()
 

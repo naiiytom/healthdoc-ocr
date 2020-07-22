@@ -33,6 +33,7 @@ class doc3djointLoader(data.Dataset):
         img_path = pjoin(self.root, 'img', img_name + '.png')
         wc_path = pjoin(self.root, 'wc', img_name + '.exr')
         bm_path = pjoin(self.root, 'bm', img_name + '.mat')
+        alb_path = pjoin(self.root, 'alb', img_name + '.png')
         recon_folder = 'chess48'
         recon_path = pjoin(self.root, 'recon',
                            img_name[:-4] + recon_folder + '0001.png')
@@ -44,12 +45,16 @@ class doc3djointLoader(data.Dataset):
         wc = np.array(wc, dtype=np.float)
 
         bm = self.loadmat(bm_path)['bm']
+
         recon = m.imread(recon_path, mode='RGB')
 
-        if self.is_transform:
-            img, wc, bm, recon = self.transform(img, wc, bm, recon)
+        alb = m.imread(alb_path, mode='RGB')
+        alb = np.array(alb, dtype=np.uint8)
 
-        return img, wc, bm, recon
+        if self.is_transform:
+            img, wc, bm, recon, im, alb = self.transform(img, wc, bm, recon, alb)
+
+        return img, wc, bm, recon, im, alb
 
     def loadmat(self, path):
         try:
@@ -57,13 +62,27 @@ class doc3djointLoader(data.Dataset):
         except NotImplementedError:
             print(f'Couldn\'t read file: {path}')
 
-    def transform(self, img, wc, bm, recon):
+    def transform(self, img, wc, bm, recon, alb):
+        im = m.imresize(img, (self.bm_size[0], self.bm_size[1]))
         img = m.imresize(img, (self.img_size[0], self.img_size[1]))
         if img.shape[-1] == 4:
             img = img[:, :, :3]
         img = img[:, :, ::-1]  # RGB => BGR
         img = img.astype(float) / 255.0
         img = img.transpose(2, 0, 1)
+
+        if im.shape[-1] == 4:
+            im = im[:, :, :3]
+        im = im[:, :, ::-1]  # RGB => BGR
+        im = im.astype(float) / 255.0
+        im = im.transpose(2, 0, 1)
+
+        alb = m.imresize(alb, (self.bm_size[0], self.bm_size[1]))
+        if alb.shape[-1] == 4:
+            alb = alb[:, :, :3]
+        alb = alb[:, :, ::-1] # RGB => BGR
+        alb = alb.astype(float) / 255.0
+        alb = alb.transpose(2, 0, 1)
 
         recon = m.imresize(recon, (self.bm_size[0], self.bm_size[1]))
         if recon.shape[-1] == 4:
@@ -99,5 +118,7 @@ class doc3djointLoader(data.Dataset):
         wc = torch.from_numpy(wc).float()
         bm = torch.from_numpy(bm).float()
         recon = torch.from_numpy(recon).float()
+        im = torch.from_numpy(im).float()
+        alb = torch.from_numpy(alb).float()
 
-        return img, wc, bm, recon
+        return img, wc, bm, recon, im, alb
