@@ -77,7 +77,7 @@ def train(args):
             print("Loading model and optimizer from checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
             model.load_state_dict(checkpoint['model_state'])
-            # optimizer.load_state_dict(checkpoint['optimizer_state'])
+            optimizer.load_state_dict(checkpoint['optimizer_state'])
             print("Loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
             epoch_start = checkpoint['epoch']

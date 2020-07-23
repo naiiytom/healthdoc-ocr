@@ -48,7 +48,7 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
     optimizer = torch.optim.Adam([{'params': wc_model.parameters()},
                                   {'params': bm_model.parameters()}], lr=1e-4, weight_decay=5e-4, amsgrad=True)
     schedule = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=4, verbose=True)
+        optimizer, mode='min', factor=0.5, patience=3, verbose=True)
 
     # Setup losses
     MSE = nn.MSELoss()
@@ -133,7 +133,7 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
             rloss, ssim, _, _ = reconst_loss(
                 recon_labels, bm_out, bm_labels)
             bm_mse = MSE(bm_out, bm_labels)
-            bm_loss = (10 * bm_l1loss) + (0.5 * rloss)
+            bm_loss = (10.0 * bm_l1loss) + (0.5 * rloss)
 
             # Loss between unwarped GT and unwarped Predict
             im_ins = im_inputs[:, :3, :, :]
@@ -145,11 +145,7 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
             const_l1 = loss_fn(uwpred, uworg)
             const_mse = MSE(uwpred, uworg)
 
-            # Show image
-            _, ax = plt.subplots(1, 2)
-            ax[0].imshow(uworg[0].cpu().detach().numpy().transpose((1, 2, 0)))
-            ax[1].imshow(uwpred[0].cpu().detach().numpy().transpose((1, 2, 0)))
-            plt.show()
+     
 
             # BM Loss
             avg_const_l1 += float(const_l1)
@@ -166,11 +162,16 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
 
             # print(f'Epoch[{epoch}/{n_epoch}] Loss: {loss:.6f} Const Loss: {const_l1:.6f}')
             if (i+1) % 10 == 0:
+                # Show image
+                _, ax = plt.subplots(1, 2)
+                ax[0].imshow(uworg[0].cpu().detach().numpy().transpose((1, 2, 0)))
+                ax[1].imshow(uwpred[0].cpu().detach().numpy().transpose((1, 2, 0)))
+                plt.show()
                 print(
                     f'Epoch[{epoch}/{n_epoch}] Batch[{i+1}/{len(trainloader)}] Loss: {avg_loss/(i+1):.6f} Const Loss: {avg_const_l1/(i+1):.6f}')
 
-            # loss.backward()
-            const_l1.backward()
+            loss.backward()
+            # const_l1.backward()
             optimizer.step()
 
         len_trainset = len(trainloader)
@@ -266,7 +267,7 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
         print(
             f'Reconstruction against GT => Loss: {val_losses[7]} MSE" {val_losses[8]}')
         # Reduce learning rate
-        schedule.step(avg_const_l1_val)
+        schedule.step(bm_val_mse)
 
         if wc_val_mse < best_valwc_mse:
             best_valwc_mse = wc_val_mse
@@ -285,5 +286,5 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
 
 if __name__ == "__main__":
     train(n_epoch=120, batch_size=16, resume=True,
-          wc_path='C:/Users/yuttapichai.lam/dev-environment/pretrained-models/unetnc_doc3d.pkl',
-          bm_path='C:/Users/yuttapichai.lam/dev-environment/pretrained-models/dnetccnl_doc3d.pkl')
+          wc_path='./checkpoints-wc/unetnc_95_wc_0.0006252872134892045_0.000769112603286643_best_model.pkl',
+          bm_path='./checkpoints-bm/dnetccnl_96_bm_0.0006756393114959918_0.000899096832170131_best_model.pkl')
