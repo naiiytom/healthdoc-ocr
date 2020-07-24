@@ -38,7 +38,7 @@ def train(args):
     data_loader = get_loader('doc3dwc')
     data_path = args.data_path
     t_loader = data_loader(data_path, is_transform=True, img_size=(
-        args.img_rows, args.img_cols), augmentations=True)
+        args.img_rows, args.img_cols), augmentations=False)
     v_loader = data_loader(data_path, is_transform=True,
                            split='val', img_size=(args.img_rows, args.img_cols))
 
@@ -76,7 +76,7 @@ def train(args):
             print("Loading model and optimizer from checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
             model.load_state_dict(checkpoint['model_state'])
-            optimizer.load_state_dict(checkpoint['optimizer_state'])
+            # optimizer.load_state_dict(checkpoint['optimizer_state'])
             print("Loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
             epoch_start = checkpoint['epoch']
@@ -131,18 +131,17 @@ def train(args):
             optimizer.step()
             global_step += 1
 
-            if (i+1) % 50 == 0:
+            if (i+1) % 10 == 0:
                 print("Epoch[%d/%d] Batch [%d/%d] Loss: %.4f" %
-                      (epoch+1, args.n_epoch, i+1, len(trainloader), avg_loss/50.0))
+                      (epoch+1, args.n_epoch, i+1, len(trainloader), avg_loss/10.0))
                 avg_loss = 0.0
 
-            if args.tboard and (i+1) % 20 == 0:
+            if args.tboard and (i+1) % 10 == 0:
                 show_wc_tnsboard(global_step, writer, images, labels,
                                  pred, 8, 'Train Inputs', 'Train WCs', 'Train Pred. WCs')
-                writer.add_scalar('WC: L1 Loss/train',
-                                  avg_l1loss/(i+1), global_step)
-                writer.add_scalar('WC: Grad Loss/train',
-                                  avg_gloss/(i+1), global_step)
+                writer.add_scalars('Train', {
+                    'WC_L1 Loss/train': avg_l1loss/(i+1),
+                    'WC_Grad Loss/train': avg_gloss/(i+1)}, global_step)
 
         train_mse = train_mse/len(trainloader)
         avg_l1loss = avg_l1loss/len(trainloader)
@@ -176,17 +175,21 @@ def train(args):
                 val_mse += float(MSE(pred_val, labels_val))
                 val_gloss += float(g_loss)
 
-        if args.tboard:
-            show_wc_tnsboard(epoch+1, writer, images_val, labels_val,
-                             pred, 8, 'Val Inputs', 'Val WCs', 'Val Pred. WCs')
-            writer.add_scalar('WC: L1 Loss/val', val_loss, epoch+1)
-            writer.add_scalar('WC: Grad Loss/val', val_gloss, epoch+1)
-
         val_loss = val_loss/len(valloader)
         val_mse = val_mse/len(valloader)
         val_gloss = val_gloss/len(valloader)
         print("val loss at epoch {}:: {}".format(epoch+1, val_loss))
         print("val MSE: {}".format(val_mse))
+
+        if args.tboard:
+            show_wc_tnsboard(epoch+1, writer, images_val, labels_val,
+                             pred, 8, 'Val Inputs', 'Val WCs', 'Val Pred. WCs')
+            writer.add_scalars('L1', {
+                'L1_Loss/train': avg_l1loss,
+                'L1_Loss/val': val_loss}, epoch+1)
+            writer.add_scalars('GLoss', {
+                'Grad Loss/train': avg_gloss,
+                'Grad Loss/val': val_gloss}, epoch+1)
 
         val_losses = [val_loss, val_mse, val_gloss]
         write_log_file(experiment_name, val_losses, epoch+1, lrate, 'Val')

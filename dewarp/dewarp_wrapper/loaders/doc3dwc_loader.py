@@ -52,6 +52,7 @@ class doc3dwcLoader(data.Dataset):
     def __getitem__(self, index):
         # 1/824_8-cp_Page_0503-7Nw0001
         im_name = self.files[self.split][index]
+        im_name = im_name[:-4]
         im_path = pjoin(self.root, 'img',  im_name + '.png')
         lbl_path = pjoin(self.root, 'wc', im_name + '.exr')
         im = m.imread(im_path, mode='RGB')
