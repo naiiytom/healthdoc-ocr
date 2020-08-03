@@ -2,3 +2,5 @@
 /.vscode
 /resources
 *pyc
+
+*runs

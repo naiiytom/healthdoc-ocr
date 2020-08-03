@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 import cv2
 
-ROOT = 'C:/Users/yuttapichai.lam/dev-environment/dataset/'
+ROOT = 'D:/doc3d-dataset/'
 FNAME = '1_1_3-pp_Page_069-tCY0001'
 img_path = ROOT + 'img/' + FNAME + '.png'
 img = m.imread(img_path, mode='RGB')
