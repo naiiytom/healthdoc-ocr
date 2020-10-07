@@ -6,12 +6,14 @@ from ocr import process_image
 
 app = Flask(__name__)
 
+
 @app.route(f'/', methods=['GET'])
 def main():
     return jsonify({
         'status': 200,
         'text': 'Hello welcome to OCR backend'
     })
+
 
 @app.route(f'/api/ocr', methods=['POST'])
 def ocr():
@@ -33,6 +35,7 @@ def ocr():
             'status': 403,
             'error': 'Forbidden'
         })
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

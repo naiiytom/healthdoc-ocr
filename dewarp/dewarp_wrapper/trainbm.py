@@ -217,17 +217,17 @@ def train(args):
         if args.tboard:
             # plot train against val
             writer.add_scalars('BM_L1_Loss',
-                              {'train': avgl1loss,
-                               'val': val_l1loss}, epoch+1)
+                               {'train': avgl1loss,
+                                'val': val_l1loss}, epoch+1)
             writer.add_scalars('CB_Recon_Loss',
-                              {'train': avgrloss,
-                               'val': val_rloss}, epoch+1)
+                               {'train': avgrloss,
+                                'val': val_rloss}, epoch+1)
             writer.add_scalars('CB_SSIM_Loss',
-                              {'train': avgssimloss,
-                               'val': val_ssimloss}, epoch+1)
+                               {'train': avgssimloss,
+                                'val': val_ssimloss}, epoch+1)
             writer.add_scalars('MSE_Mean_square_error',
-                              {'train': train_mse,
-                               'val': val_mse}, epoch+1)
+                               {'train': train_mse,
+                                'val': val_mse}, epoch+1)
 
         # reduce learning rate
         sched.step(val_mse)

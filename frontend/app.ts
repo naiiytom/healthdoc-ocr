@@ -5,9 +5,9 @@ const router = new Router();
 router
   .get("/", (context) => {
     context.response.status = 200,
-    context.response.body = "Hello"
+      context.response.body = "Hello"
   });
-  
+
 const PORT = 8080;
 const app = new Application();
 app.use(router.routes());

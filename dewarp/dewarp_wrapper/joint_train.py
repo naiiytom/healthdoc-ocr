@@ -145,8 +145,6 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
             const_l1 = loss_fn(uwpred, uworg)
             const_mse = MSE(uwpred, uworg)
 
-     
-
             # BM Loss
             avg_const_l1 += float(const_l1)
             avg_const_mse += float(const_mse)
@@ -164,8 +162,10 @@ def train(n_epoch=50, batch_size=32, resume=False, wc_path='', bm_path=''):
             if (i+1) % 10 == 0:
                 # Show image
                 _, ax = plt.subplots(1, 2)
-                ax[0].imshow(uworg[0].cpu().detach().numpy().transpose((1, 2, 0)))
-                ax[1].imshow(uwpred[0].cpu().detach().numpy().transpose((1, 2, 0)))
+                ax[0].imshow(
+                    uworg[0].cpu().detach().numpy().transpose((1, 2, 0)))
+                ax[1].imshow(
+                    uwpred[0].cpu().detach().numpy().transpose((1, 2, 0)))
                 plt.show()
                 print(
                     f'Epoch[{epoch}/{n_epoch}] Batch[{i+1}/{len(trainloader)}] Loss: {avg_loss/(i+1):.6f} Const Loss: {avg_const_l1/(i+1):.6f}')
